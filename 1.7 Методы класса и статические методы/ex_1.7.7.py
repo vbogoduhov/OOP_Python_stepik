@@ -16,7 +16,7 @@ class TextInput:
         self.check_name(self.name)
 
     def get_html(self):
-        return ''.join(["<p class='login'>", self.name, ": <input type='text' size=", str(self.size), " />"])
+        return f"""<p class='login'>{self.name}: <input type='text' size={self.size} />"""
 
 class PasswordInput:
     CHARS = "абвгдеёжзийклмнопрстуфхцчшщьыъэюя " + ascii_lowercase
@@ -33,7 +33,7 @@ class PasswordInput:
         self.check_name(self.name)
 
     def get_html(self):
-        return ''.join(["<p class='login'>", self.name, ": <input type='text' size=", str(self.size), " />"])
+        return f"""<p class='password'>{self.name}: <input type='text' size={self.size} />"""
 
 
 class FormLogin:
@@ -46,6 +46,6 @@ class FormLogin:
 
 
 # эти строчки не менять
-login = FormLogin(TextInput("Логин"), PasswordInput("Пароль"))
+login = FormLogin(TextInput("Login123"), PasswordInput("Psw"))
 html = login.render_template()
 print(html)

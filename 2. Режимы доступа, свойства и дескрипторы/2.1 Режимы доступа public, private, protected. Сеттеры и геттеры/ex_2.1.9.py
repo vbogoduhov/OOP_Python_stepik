@@ -37,7 +37,7 @@ class ObjList:
         self.__prev = None
 
     def set_next(self, obj):
-        self.__next  = obj
+        self.__next = obj
 
     def set_prev(self, obj):
         self.__prev = obj

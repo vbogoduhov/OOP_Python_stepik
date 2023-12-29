@@ -358,6 +358,7 @@ d.a = 8
 d.b = 15
 a, b, c = d.a, d.b, d.c  # a=10.5, b=15, c=30
 d.MAX_DIMENSION = 10  # исключение AttributeError
+<<<<<<< HEAD
 ```
 ## ex. 10
 ### Объявите класс _GeyserClassic_ - фильтр для очистки воды. 
@@ -426,3 +427,6 @@ f1, f2, f3 = my_water.get_filters()  # f1, f2, f3 - ссылки на соотв
 my_water.add_filter(3, Calcium(time.time())) # повторное добавление в занятый слот невозможно
 my_water.add_filter(2, Calcium(time.time())) # добавление в "чужой" слот также невозможно
 ```
+=======
+```
+>>>>>>> 27663caf28dd19a7573e35d66134e8cc0f49028e

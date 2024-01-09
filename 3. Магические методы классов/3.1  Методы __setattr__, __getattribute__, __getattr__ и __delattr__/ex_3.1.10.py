@@ -78,18 +78,3 @@ class Calcium:
         # if hasattr(self, "date"):
         #     pass
 
-
-
-
-my_water = GeyserClassic()
-my_water.add_filter(1, Mechanical(time.time()))
-my_water.add_filter(2, Aragon(time.time()))
-w = my_water.water_on() # False
-print(w)
-my_water.add_filter(3, Calcium(time.time()))
-w = my_water.water_on() # True
-print(w)
-f1, f2, f3 = my_water.get_filters()  # f1, f2, f3 - ссылки на соответствующие объекты классов фильтров
-print(f1, f2, f3)
-my_water.add_filter(3, Calcium(time.time())) # повторное добавление в занятый слот невозможно
-my_water.add_filter(2, Calcium(time.time())) # добавление в "чужой" слот также невозможно

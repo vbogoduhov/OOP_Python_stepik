@@ -1,3 +1,6 @@
+from types import MethodType, resolve_bases
+
+
 class Vertex(object):
     """docstring for Vertex."""
 
@@ -9,6 +12,7 @@ class Vertex(object):
     def links(self):
         """The links property."""
         return self._links
+
 
 
 class Link(object):
@@ -65,6 +69,19 @@ class LinkedGraph(object):
             self.add_vertex(link.v1)
             self.add_vertex(link.v2)
 
+    def get_dist_vertex(self, from_v, to_v):
+        if from_v == to_v:
+            return 0
+        for link in self._links:
+            if (
+                    (from_v == link._v1
+                or from_v == link._v2)
+                and (to_v == link._v1
+                or to_v == link._v2)
+            ):
+                return link._dist
+        return 0
+
     def find_path(self, start_v, stop_v):
         pass
 
@@ -81,6 +98,14 @@ class Station(Vertex):
 
     def __repr__(self):
         return f"{self.name}"
+
+    def __eq__(self, other):
+        if isinstance(other, Station):
+            return (
+                True
+                if self.name == other.name
+                else False
+            )
 
 
 class LinkMetro(Link):
@@ -165,7 +190,34 @@ map_metro.add_link(LinkMetro(v5, v6, 4))
 
 
 def create_matrix(lg):
+    len_matrix = len(lg._vertex) + 1
+    matrix = [[0 for _ in range(len_matrix)] for _ in range(len_matrix)]
+    for r in range(1, len_matrix):
+        matrix[r][0] = lg._vertex[r - 1]
+        matrix[0][r] = lg._vertex[r - 1]
+    return matrix
+
+
+def scan_matrix(matrix, map_metro):
+    for i in range(1, len(matrix)):
+        cur_vertex = matrix[i][0]
+        print("Текущая точка:", cur_vertex)
+        for c in range(1, len(matrix[i])):
+            print(matrix[0][c])
+            dist = map_metro.get_dist_vertex(cur_vertex, matrix[0][c])
+            print(f"dist = {dist}")
+            matrix[i][c] = dist
+            dist = 0
+    print("Матрица смежности готова")
+    return matrix
+
+
+def find_path(matrix, start_v, end_v):
     pass
+    # for row in matrix:
+    #     for el in row:
+    #         print(el, end=" ")
+    #     print()
 
 
 print(len(map_metro._vertex))
@@ -173,3 +225,10 @@ for vertex in map_metro._vertex:
     print(f"vertex -- {vertex.name}")
     for v in vertex._links:
         print(f"link to {v.name}")
+
+matrix = create_matrix(map_metro)
+res_matrix = scan_matrix(matrix, map_metro)
+for r in range(len(res_matrix)):
+    for c in range(len(res_matrix[r])):
+        print(res_matrix[r][c], end=" ")
+    print()

@@ -1,4 +1,6 @@
-from types import MethodType, resolve_bases
+import enum
+import math
+from sre_constants import RANGE_UNI_IGNORE
 
 
 class Vertex(object):
@@ -12,7 +14,6 @@ class Vertex(object):
     def links(self):
         """The links property."""
         return self._links
-
 
 
 class Link(object):
@@ -73,17 +74,80 @@ class LinkedGraph(object):
         if from_v == to_v:
             return 0
         for link in self._links:
-            if (
-                    (from_v == link._v1
-                or from_v == link._v2)
-                and (to_v == link._v1
-                or to_v == link._v2)
+            if (from_v == link._v1 or from_v == link._v2) and (
+                to_v == link._v1 or to_v == link._v2
             ):
                 return link._dist
-        return 0
+        return math.inf
+
+    def __next_vertex(self, viewed, lenght_path):
+        min = -1
+        max = math.inf
+        for key, value in lenght_path.items():
+            if value < max and key not in viewed:
+                max = value
+                min = key
+        return min
 
     def find_path(self, start_v, stop_v):
-        pass
+        matrix = self.__create_matrix()
+        weight_link = [math.inf] * len(self._vertex)
+        print(matrix)
+
+        viewed_vertex = set()  # Просмотренные вершины
+        path = []  # Список результирующий с наименованием вершин и связями между ними
+        lenght_path = {v.name: math.inf for v in self._vertex}
+        v = start_v.name
+        viewed_vertex.add(v)
+        lenght_path[v] = 0
+        M = [0] * len(self._vertex)
+        print(v, viewed_vertex, lenght_path, M, sep="\n")
+
+        while v != -1:
+            for ind, val in enumerate(matrix[v]):
+                if str(ind+1) not in viewed_vertex:
+                    w = lenght_path[v] + val
+                    if w < lenght_path[str(ind)]:
+                        lenght_path[str(ind)] = w
+                        M[ind] = v
+            v = self.__next_vertex(viewed_vertex, lenght_path)
+            if v != -1:
+                viewed_vertex.add(v)
+        start = start_v.name
+        end = stop_v.name
+        P = [int(end)]
+        while end != start:
+            end = M[P[-1]-1]
+            print(f"end = {end}")
+            P.append(int(end))
+        print(f"М = {M}", f"lenght_path = {lenght_path}")
+        print(P)
+
+    def __create_matrix(self):
+        len_matrix = len(self._vertex)
+        matrix = {v.name: [math.inf] * len_matrix for v in self._vertex}
+        # for r in range(1, len_matrix):
+        #     matrix[r][0] = self._vertex[r - 1]
+        #     matrix[0][r] = self._vertex[r - 1]
+        # Создаём матрицу смежности
+
+        for i, v in enumerate(self._vertex):
+            for ind, to_v in enumerate(self._vertex):
+                dist = self.get_dist_vertex(v, to_v)
+                matrix[v.name][ind] = dist
+                dist = 0
+
+        # for i in range(1, len(matrix)):
+        #     cur_vertex = matrix[i][0]
+        #     # print("Текущая точка:", cur_vertex)
+        #     for c in range(1, len(matrix[i])):
+        #         # print(matrix[0][c])
+        #         dist = map_metro.get_dist_vertex(cur_vertex, matrix[0][c])
+        #         # print(f"dist = {dist}")
+        #         matrix[i][c] = dist
+        #         dist = 0
+        print("Матрица смежности готова")
+        return matrix
 
 
 class Station(Vertex):
@@ -101,11 +165,7 @@ class Station(Vertex):
 
     def __eq__(self, other):
         if isinstance(other, Station):
-            return (
-                True
-                if self.name == other.name
-                else False
-            )
+            return True if self.name == other.name else False
 
 
 class LinkMetro(Link):
@@ -188,47 +248,52 @@ map_metro.add_link(LinkMetro(v4, v5, 2))
 map_metro.add_link(LinkMetro(v4, v6, 1))
 map_metro.add_link(LinkMetro(v5, v6, 4))
 
-
-def create_matrix(lg):
-    len_matrix = len(lg._vertex) + 1
-    matrix = [[0 for _ in range(len_matrix)] for _ in range(len_matrix)]
-    for r in range(1, len_matrix):
-        matrix[r][0] = lg._vertex[r - 1]
-        matrix[0][r] = lg._vertex[r - 1]
-    return matrix
-
-
-def scan_matrix(matrix, map_metro):
-    for i in range(1, len(matrix)):
-        cur_vertex = matrix[i][0]
-        print("Текущая точка:", cur_vertex)
-        for c in range(1, len(matrix[i])):
-            print(matrix[0][c])
-            dist = map_metro.get_dist_vertex(cur_vertex, matrix[0][c])
-            print(f"dist = {dist}")
-            matrix[i][c] = dist
-            dist = 0
-    print("Матрица смежности готова")
-    return matrix
-
-
-def find_path(matrix, start_v, end_v):
-    pass
-    # for row in matrix:
-    #     for el in row:
-    #         print(el, end=" ")
-    #     print()
-
-
-print(len(map_metro._vertex))
-for vertex in map_metro._vertex:
-    print(f"vertex -- {vertex.name}")
-    for v in vertex._links:
-        print(f"link to {v.name}")
-
-matrix = create_matrix(map_metro)
-res_matrix = scan_matrix(matrix, map_metro)
-for r in range(len(res_matrix)):
-    for c in range(len(res_matrix[r])):
-        print(res_matrix[r][c], end=" ")
-    print()
+map_metro.find_path(v1, v4)
+# def create_matrix(lg):
+#     len_matrix = len(lg._vertex)
+#     matrix = {v.name: [math.inf] * len_matrix for v in lg._vertex}
+#     # matrix = [[0 for _ in range(len_matrix)] for _ in range(len_matrix)]
+#     # for r in range(len_matrix):
+#     #     matrix[r][0] = lg._vertex[r - 1]
+#     #     matrix[0][r] = lg._vertex[r - 1]
+#     return matrix
+#
+#
+# def scan_matrix(matrix, map_metro):
+#     # for i in range(1, len(matrix)):
+#     #     cur_vertex = matrix[i][0]
+#     #     print("Текущая точка:", cur_vertex)
+#     #     for c in range(1, len(matrix[i])):
+#     #         print(matrix[0][c])
+#     #         dist = map_metro.get_dist_vertex(cur_vertex, matrix[0][c])
+#     #         print(f"dist = {dist}")
+#     #         matrix[i][c] = dist
+#     #         dist = 0
+#     for i, v in enumerate(map_metro._vertex):
+#         for ind, to_v in enumerate(map_metro._vertex):
+#             dist = map_metro.get_dist_vertex(v, to_v)
+#             matrix[v.name][ind] = dist
+#             dist = 0
+#
+#     print("Матрица смежности готова")
+#     return matrix
+#
+#
+# print(len(map_metro._vertex))
+# for vertex in map_metro._vertex:
+#     print(f"vertex -- {vertex.name}")
+#     for v in vertex._links:
+#         print(f"link to {v.name}")
+#
+# matrix = create_matrix(map_metro)
+# res_matrix = scan_matrix(matrix, map_metro)
+# # for r in range(len(res_matrix)):
+# #     for c in range(len(res_matrix[r])):
+# #         print(res_matrix[r][c], end=" ")
+# #     print()
+# for key, value in matrix.items():
+#     print(f"{key}: {value}")
+#
+#
+# def find_path(matrix, start_v, end_v):
+#     pass

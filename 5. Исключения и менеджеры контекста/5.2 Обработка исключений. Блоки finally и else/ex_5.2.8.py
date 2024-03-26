@@ -95,8 +95,6 @@ for rect in lst_rect:
     else:
         lst_not_collision.append(rect)
 
-if len(lst_not_collision) > 0:
-    print(*[item.__dict__ for item in lst_not_collision], sep="\n")
 
 r = Rect(1, 2, 10, 20)
 assert (

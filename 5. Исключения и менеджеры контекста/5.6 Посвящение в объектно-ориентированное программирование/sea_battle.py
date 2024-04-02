@@ -7,7 +7,7 @@ class Ship(object):
         self._x = x  # столбцы
         self._y = y  # строки
         self._length = length  # длина корабля
-        self._tp = tp  # ориентция корабля
+        self._tp = tp  # ориентция корабля 1 - горизонтальная, 2 - вертикальная
         self._cells = [
             1 for _ in range(self._length)
         ]  # коллекция хранит попадания/промахи - 1 -- промах, 2 -- попадание
@@ -24,17 +24,57 @@ class Ship(object):
         """Получение начальных координат корабля в виде кортежа"""
         return (self._x, self._y)
 
-    def move(self, go):
-        """Перемещение корабля на go клеток по направлению оринтации"""
-        pass
+    def move(self, go=1):
+        """Перемещение корабля на go клеток по направлению ориентации"""
+        if self._is_move:
+            if self._tp == 1:
+                self.set_start_coords(self._x + go, self._y)
+            else:
+                self.set_start_coords(self._x, self._y + go)
 
     def is_collide(self, ship):
         """Проверка настолкновение с другим кораблём"""
-        pass
+        ship_coord = ship.get_start_coords()
+        if self._tp == ship._tp:  # Ориентация кораблей одинакова
+            if self._tp == 1:  # Ориентация кораблей горизонтальна
+                if not (
+                    abs(self._y - ship_coord[1]) > 1
+                    or (ship_coord[0] - (self._x + self._length - 1)) > 1
+                    or (self._x - (ship_coord[0] + ship._length - 1)) > 1
+                ):
+                    return True
+            else:  # Ориентация кораблей вертикальна
+                if not (
+                    abs(self._x - ship_coord[0]) > 1
+                    or (ship_coord[1] - (self._y + self._length - 1)) > 1
+                    or (self._y - (ship_coord[1] + ship._length - 1)) > 1
+                ):
+                    return True
+        elif (
+            self._tp == 1 and ship_tp == 2
+        ):  # Ориентация кораблей не одинакова, текущий - горизонтальный, второй - вертикальный
+            if not (
+                (ship_coord[1] - self._y) > 1
+                or (self._y - (ship_coord[1] + ship._length - 1)) > 1
+                or (ship_coord[0] - (self._x + self._length - 1)) > 1
+                or (self._x - ship_coord[0]) > 1
+            ):
+                return True
+        else:  # Ориентация не одинакова, текущий - вертикальный, воторой - горизонтальный
+            if not (
+                (ship_coord[1] - (self._y + self._length - 1)) > 1
+                or (self._y - ship_coord[1]) > 1
+                or (ship_coord[0] - (self._x + self._length - 1)) > 1
+                or (self._x - ship_coord[0]) > 1
+            ):
+                return True
+        return False
 
     def is_out_pole(self, size):
         """Проверка на выход корабля за пределы игрового поля"""
-        pass
+        if self._x + self._length > size or self._y + self._length > size:
+            return True
+        return False
 
     def __getitem__(self, key):
         """Доступ к коллекции _cells по индексу"""
@@ -56,6 +96,8 @@ class GamePole(object):
 
     def __init__(self, size=10):
         super(GamePole, self).__init__()
+        self._ships = []
+        self._size = size
 
     def init(self):
         """Инициализация игрового поля"""
@@ -63,7 +105,7 @@ class GamePole(object):
 
     def get_ships(self):
         """Для получения коллекции _ships"""
-        pass
+        return self._ships
 
     def move_ships(self):
         """Перемещает все корабли на одну клетку по напраалению оринтации"""
